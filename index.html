@@ -691,9 +691,75 @@
         }
       }
     </style>
-  <script src="config.js"></script>
   </head>
   <body>
+    <!-- ═══════════════════════════════════════ -->
+    <!-- API KEY MODAL -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="apiKeyOverlay" style="
+      display:none;
+      position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;
+      background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);
+      align-items:center;justify-content:center;
+    ">
+      <div style="
+        background:linear-gradient(135deg,#0f1923 0%,#1a2535 100%);
+        border:1px solid rgba(99,179,237,0.3);
+        border-radius:20px;padding:40px;max-width:460px;width:90%;
+        box-shadow:0 25px 60px rgba(0,0,0,0.5),0 0 0 1px rgba(99,179,237,0.1);
+        animation:modalIn 0.35s cubic-bezier(.34,1.56,.64,1);
+      ">
+        <div style="text-align:center;margin-bottom:28px;">
+          <div style="font-size:2.5rem;margin-bottom:12px;">🔑</div>
+          <h2 style="color:#e2e8f0;font-size:1.4rem;font-weight:700;margin:0 0 8px;">Masukkan Groq API Key</h2>
+          <p style="color:#718096;font-size:0.88rem;margin:0;line-height:1.6;">
+            API key disimpan hanya di browser kamu (localStorage).<br>Tidak dikirim ke server manapun.
+          </p>
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="color:#a0aec0;font-size:0.82rem;font-weight:600;display:block;margin-bottom:8px;letter-spacing:0.05em;">GROQ API KEY</label>
+          <div style="position:relative;">
+            <input
+              id="apiKeyInput"
+              type="password"
+              placeholder="gsk_xxxxxxxxxxxxxxxxxxxx"
+              style="
+                width:100%;padding:14px 48px 14px 16px;border-radius:10px;
+                border:1px solid rgba(99,179,237,0.3);background:rgba(255,255,255,0.05);
+                color:#e2e8f0;font-size:0.95rem;font-family:monospace;
+                outline:none;box-sizing:border-box;transition:border 0.2s;
+              "
+              onkeydown="if(event.key==='Enter')saveApiKey()"
+              onfocus="this.style.borderColor='rgba(99,179,237,0.7)'"
+              onblur="this.style.borderColor='rgba(99,179,237,0.3)'"
+            />
+            <button onclick="toggleApiKeyVisibility()" id="toggleEye" style="
+              position:absolute;right:14px;top:50%;transform:translateY(-50%);
+              background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0;
+            ">👁️</button>
+          </div>
+        </div>
+        <button onclick="saveApiKey()" style="
+          width:100%;padding:14px;border-radius:10px;border:none;cursor:pointer;
+          background:linear-gradient(135deg,#3b82f6,#06b6d4);
+          color:#fff;font-size:1rem;font-weight:700;letter-spacing:0.03em;
+          transition:opacity 0.2s,transform 0.1s;
+          box-shadow:0 4px 20px rgba(59,130,246,0.4);
+        "
+        onmouseover="this.style.opacity=0.9"
+        onmouseout="this.style.opacity=1"
+        >✅ Simpan & Mulai Dashboard</button>
+        <p style="color:#4a5568;font-size:0.78rem;text-align:center;margin:16px 0 0;">
+          Dapatkan API key gratis di <a href="https://console.groq.com" target="_blank" style="color:#63b3ed;">console.groq.com</a>
+        </p>
+      </div>
+    </div>
+    <style>
+      @keyframes modalIn {
+        from { opacity:0; transform:scale(0.85) translateY(20px); }
+        to   { opacity:1; transform:scale(1)   translateY(0);     }
+      }
+    </style>
     <div class="tooltip-d3" id="tooltip"></div>
 
     <header>
@@ -1224,9 +1290,37 @@
       // ═══════════════════════════════════════
       //  UTILS
       // ═══════════════════════════════════════
-      // API Key dimuat dari config.js (file yang di-gitignore, tidak masuk GitHub)
-      // Salin config.example.js → config.js dan isi API key kamu di sana
-      const apiKey = (typeof GROQ_API_KEY !== 'undefined') ? GROQ_API_KEY : "";
+      // API Key dimuat dari localStorage browser (tidak ada di kode sama sekali)
+      let apiKey = localStorage.getItem('groq_api_key') || '';
+
+      // ─── API Key Modal Logic ───────────────────────────────────────
+      function showApiKeyModal() {
+        const overlay = document.getElementById('apiKeyOverlay');
+        overlay.style.display = 'flex';
+        setTimeout(() => document.getElementById('apiKeyInput').focus(), 100);
+      }
+      function hideApiKeyModal() {
+        document.getElementById('apiKeyOverlay').style.display = 'none';
+      }
+      function toggleApiKeyVisibility() {
+        const inp = document.getElementById('apiKeyInput');
+        const eye = document.getElementById('toggleEye');
+        if (inp.type === 'password') { inp.type = 'text';     eye.textContent = '🙈'; }
+        else                         { inp.type = 'password'; eye.textContent = '👁️'; }
+      }
+      function saveApiKey() {
+        const val = document.getElementById('apiKeyInput').value.trim();
+        if (!val || !val.startsWith('gsk_')) {
+          alert('⚠️ API key tidak valid. Pastikan diawali dengan "gsk_"');
+          return;
+        }
+        localStorage.setItem('groq_api_key', val);
+        apiKey = val;
+        hideApiKeyModal();
+      }
+      window.addEventListener('DOMContentLoaded', () => {
+        if (!localStorage.getItem('groq_api_key')) showApiKeyModal();
+      });
       const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
       const GROQ_MODEL = "llama-3.3-70b-versatile";
       let globalDetectedAnomalies = [];
