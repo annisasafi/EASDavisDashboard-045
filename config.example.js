@@ -1,4 +1,5 @@
-// ✅ FILE INI AMAN DI-PUSH KE GITHUB
-// Salin file ini, rename menjadi config.js, lalu isi API key kamu
+let GROQ_API_KEY = typeof window.GROQ_API_KEY !== 'undefined' ? window.GROQ_API_KEY : null;
 
-const GROQ_API_KEY = "ISI_API_KEY_GROQ_KAMU_DI_SINI";
+if (!GROQ_API_KEY) {
+    GROQ_API_KEY = prompt("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");
+}
