@@ -1,0 +1,2746 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Sales | Data Visualisasi | SITI ANNISA SAFITRI</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    <style>
+      :root {
+        --bg: #0a0d0f;
+        --surface: #181a1c;
+        --surface2: #393a20;
+        --border: #232b30;
+        --accent: #bfa73c;
+        --accent2: #dd8363;
+        --accent3: #ffd166;
+        --danger: #ff3d5a;
+        --warn: #ff9b21;
+        --text: #e8eff5;
+        --muted: #a7c6cc;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Mono", monospace;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.4;
+      }
+
+      /* HEADER */
+      header {
+        position: relative;
+        z-index: 10;
+        border-bottom: 1px solid var(--border);
+        padding: 16px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(10, 13, 15, 0.92);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+      }
+      .logo-area {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .logo-dot {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 24px var(--accent);
+        animation: pulse 2.5s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 16px var(--accent);
+        }
+        50% {
+          box-shadow: 0 0 36px var(--accent);
+        }
+      }
+      .logo-title {
+        font-family: "Syne", sans-serif;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+      }
+      .logo-sub {
+        font-size: 0.6rem;
+        color: var(--muted);
+        letter-spacing: 0.15em;
+        margin-top: 2px;
+      }
+      .header-right {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .tab-btn {
+        padding: 6px 16px;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--muted);
+        font-family: "DM Mono", monospace;
+        font-size: 0.68rem;
+        cursor: pointer;
+        letter-spacing: 0.08em;
+        transition: all 0.2s;
+      }
+      .tab-btn.active {
+        background: var(--accent);
+        color: var(--bg);
+        border-color: var(--accent);
+      }
+      .tab-btn:hover:not(.active) {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* TABS */
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+
+      /* LAYOUT */
+      .page {
+        padding: 26px 32px;
+        max-width: 1400px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+      }
+      .section-label {
+        font-size: 0.58rem;
+        letter-spacing: 0.2em;
+        color: var(--accent);
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        font-weight: 500;
+      }
+      .section-title {
+        font-family: "Instrument Serif", serif;
+        font-size: 1.45rem;
+        color: var(--text);
+        margin-bottom: 18px;
+        font-style: italic;
+      }
+
+      /* AI HEADLINE */
+      .ai-headline {
+        background: linear-gradient(
+          135deg,
+          rgba(0, 229, 192, 0.07),
+          rgba(0, 229, 192, 0.02)
+        );
+        border: 1px solid rgba(0, 229, 192, 0.22);
+        border-radius: 8px;
+        padding: 14px 20px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .ai-badge {
+        background: var(--accent);
+        color: var(--bg);
+        font-size: 0.56rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        padding: 3px 7px;
+        border-radius: 3px;
+        white-space: nowrap;
+        margin-top: 2px;
+        flex-shrink: 0;
+      }
+      #aiHeadlineText {
+        font-family: "Instrument Serif", serif;
+        font-size: 1.1rem;
+        font-style: italic;
+        color: var(--text);
+        line-height: 1.5;
+      }
+      .ai-summary {
+        font-size: 0.74rem;
+        line-height: 1.85;
+        color: var(--muted);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin-bottom: 20px;
+        white-space: pre-wrap;
+      }
+      #aiNarrative h3 {
+        font-family: "Syne", sans-serif;
+        font-size: 0.82rem;
+        color: var(--accent);
+        margin: 14px 0 6px;
+        font-weight: 700;
+      }
+      #aiNarrative h3:first-child {
+        margin-top: 0;
+      }
+      #aiNarrative b,
+      #aiNarrative strong {
+        color: var(--text);
+        font-weight: 700;
+      }
+      #aiNarrative ul {
+        margin: 6px 0 12px 18px;
+      }
+      #aiNarrative li {
+        margin-bottom: 4px;
+        line-height: 1.8;
+      }
+      #aiNarrative p {
+        margin-bottom: 8px;
+        line-height: 1.85;
+      }
+
+      /* FILTERS */
+      .filters {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .filter-group label {
+        font-size: 0.58rem;
+        color: var(--muted);
+        letter-spacing: 0.1em;
+      }
+      .filter-group select {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: "DM Mono", monospace;
+        font-size: 0.7rem;
+        padding: 5px 10px;
+        border-radius: 4px;
+        outline: none;
+        cursor: pointer;
+        min-width: 130px;
+      }
+      .filter-group select:focus {
+        border-color: var(--accent);
+      }
+
+      /* KPI */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-bottom: 32px;
+      }
+      .kpi-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 16px 18px;
+        position: relative;
+        overflow: hidden;
+        transition:
+          border-color 0.2s,
+          transform 0.2s;
+      }
+      .kpi-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+      }
+      .kpi-card::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--accent);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s;
+      }
+      .kpi-card:hover::after {
+        transform: scaleX(1);
+      }
+      .kpi-label {
+        font-size: 0.58rem;
+        color: var(--muted);
+        letter-spacing: 0.12em;
+        margin-bottom: 7px;
+      }
+      .kpi-value {
+        font-family: "Syne", sans-serif;
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--text);
+      }
+      .kpi-sub {
+        font-size: 0.6rem;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .kpi-value.pos {
+        color: var(--accent);
+      }
+      .kpi-value.neg {
+        color: var(--danger);
+      }
+
+      /* CHARTS GRID */
+      .charts-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+      .charts-grid-1 {
+        margin-bottom: 14px;
+      }
+      .chart-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 18px;
+      }
+      .chart-title {
+        font-size: 0.68rem;
+        color: var(--text);
+        letter-spacing: 0.07em;
+        margin-bottom: 12px;
+        font-weight: 500;
+      }
+      .chart-title span {
+        color: var(--muted);
+        font-weight: 400;
+      }
+      .chart-wrap {
+        width: 100%;
+        overflow: visible;
+      }
+
+      /* D3 SVG styles */
+      .d3-svg {
+        width: 100%;
+        overflow: visible;
+      }
+      .axis text {
+        fill: var(--muted);
+        font-family: "DM Mono", monospace;
+        font-size: 9px;
+      }
+      .axis path,
+      .axis line {
+        stroke: var(--border);
+      }
+      .grid line {
+        stroke: var(--border);
+        stroke-opacity: 0.6;
+      }
+      .grid path {
+        stroke-width: 0;
+      }
+      .tooltip-d3 {
+        position: absolute;
+        background: rgba(17, 21, 24, 0.95);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-family: "DM Mono", monospace;
+        font-size: 0.65rem;
+        color: var(--text);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s;
+        z-index: 100;
+        white-space: nowrap;
+      }
+
+      /* ANOMALY */
+      .anomaly-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 18px;
+        margin-bottom: 14px;
+      }
+      .anomaly-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .anomaly-title {
+        font-size: 0.68rem;
+        letter-spacing: 0.1em;
+        font-weight: 500;
+      }
+      .badge {
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.58rem;
+        letter-spacing: 0.07em;
+      }
+      .badge-danger {
+        background: rgba(255, 61, 90, 0.12);
+        color: var(--danger);
+        border: 1px solid rgba(255, 61, 90, 0.3);
+      }
+      .badge-warn {
+        background: rgba(255, 155, 33, 0.12);
+        color: var(--warn);
+        border: 1px solid rgba(255, 155, 33, 0.3);
+      }
+      .anomaly-tabs {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+      .anom-tab {
+        font-size: 0.63rem;
+        padding: 4px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--muted);
+        font-family: "DM Mono", monospace;
+        transition: all 0.2s;
+      }
+      .anom-tab.active {
+        background: var(--surface2);
+        color: var(--text);
+        border-color: var(--accent);
+      }
+      .anom-content {
+        display: none;
+      }
+      .anom-content.active {
+        display: block;
+      }
+      .anomaly-list {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+      .anomaly-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 9px 12px;
+        border-radius: 6px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+      }
+      .anomaly-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        margin-top: 4px;
+      }
+      .anomaly-dot.critical {
+        background: var(--danger);
+        box-shadow: 0 0 7px var(--danger);
+      }
+      .anomaly-dot.warning {
+        background: var(--warn);
+        box-shadow: 0 0 7px var(--warn);
+      }
+      .anomaly-item-title {
+        font-size: 0.68rem;
+        color: var(--text);
+        margin-bottom: 2px;
+      }
+      .anomaly-item-desc {
+        font-size: 0.6rem;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      #anomalyNarrative {
+        font-size: 0.7rem;
+        line-height: 1.85;
+        color: var(--text);
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 12px;
+        min-height: 70px;
+        white-space: pre-wrap;
+      }
+
+      /* RESOLUTION */
+      .insight-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+      .insight-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 18px;
+      }
+      .insight-card-full {
+        grid-column: 1/-1;
+      }
+      #aiNarrative {
+        font-size: 0.7rem;
+        line-height: 1.85;
+        color: var(--text);
+        min-height: 90px;
+        white-space: pre-wrap;
+      }
+      .insight-actions {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+      .quick-btn {
+        padding: 5px 12px;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--muted);
+        font-family: "DM Mono", monospace;
+        font-size: 0.62rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .quick-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .custom-q {
+        display: flex;
+        gap: 7px;
+        margin-top: 10px;
+      }
+      .custom-q input {
+        flex: 1;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: "DM Mono", monospace;
+        font-size: 0.7rem;
+        padding: 7px 10px;
+        border-radius: 4px;
+        outline: none;
+      }
+      .custom-q input:focus {
+        border-color: var(--accent);
+      }
+      .ask-btn {
+        padding: 7px 16px;
+        background: var(--accent);
+        color: var(--bg);
+        border: none;
+        border-radius: 4px;
+        font-family: "DM Mono", monospace;
+        font-size: 0.7rem;
+        cursor: pointer;
+        font-weight: 600;
+        transition: opacity 0.2s;
+      }
+      .ask-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      /* PERF TABLE */
+      .perf-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.66rem;
+      }
+      .perf-table th {
+        color: var(--muted);
+        font-weight: 400;
+        padding: 5px 9px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        letter-spacing: 0.09em;
+      }
+      .perf-table td {
+        padding: 7px 9px;
+        border-bottom: 1px solid rgba(35, 43, 48, 0.5);
+      }
+      .perf-table tr:last-child td {
+        border-bottom: none;
+      }
+      .mbar {
+        height: 4px;
+        border-radius: 2px;
+        display: inline-block;
+        margin-left: 6px;
+        vertical-align: middle;
+      }
+
+      /* TABLEAU */
+      .tableau-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 22px;
+        text-align: center;
+      }
+      .tableau-card p {
+        font-size: 0.72rem;
+        color: var(--muted);
+        margin: 8px 0 14px;
+        line-height: 1.8;
+      }
+      .tableau-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 22px;
+        background: var(--accent);
+        color: var(--bg);
+        border-radius: 6px;
+        text-decoration: none;
+        font-family: "Syne", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        transition: opacity 0.2s;
+      }
+      .tableau-link:hover {
+        opacity: 0.85;
+      }
+      .iframe-wrap {
+        margin-top: 18px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        background: #fff;
+        height: 580px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+        font-size: 0.75rem;
+      }
+
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+      .typing::after {
+        content: "▋";
+        animation: blink 0.8s step-end infinite;
+      }
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 10px;
+      }
+      @media (max-width: 900px) {
+        .kpi-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .charts-grid,
+        .insight-grid {
+          grid-template-columns: 1fr;
+        }
+        .page {
+          padding: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ═══════════════════════════════════════ -->
+    <!-- API KEY MODAL -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="apiKeyOverlay" style="
+      display:none;
+      position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;
+      background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);
+      align-items:center;justify-content:center;
+    ">
+      <div style="
+        background:linear-gradient(135deg,#0f1923 0%,#1a2535 100%);
+        border:1px solid rgba(99,179,237,0.3);
+        border-radius:20px;padding:40px;max-width:460px;width:90%;
+        box-shadow:0 25px 60px rgba(0,0,0,0.5),0 0 0 1px rgba(99,179,237,0.1);
+        animation:modalIn 0.35s cubic-bezier(.34,1.56,.64,1);
+      ">
+        <div style="text-align:center;margin-bottom:28px;">
+          <div style="font-size:2.5rem;margin-bottom:12px;">🔑</div>
+          <h2 style="color:#e2e8f0;font-size:1.4rem;font-weight:700;margin:0 0 8px;">Masukkan Groq API Key</h2>
+          <p style="color:#718096;font-size:0.88rem;margin:0;line-height:1.6;">
+            API key disimpan hanya di browser kamu (localStorage).<br>Tidak dikirim ke server manapun.
+          </p>
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="color:#a0aec0;font-size:0.82rem;font-weight:600;display:block;margin-bottom:8px;letter-spacing:0.05em;">GROQ API KEY</label>
+          <div style="position:relative;">
+            <input
+              id="apiKeyInput"
+              type="password"
+              placeholder="gsk_xxxxxxxxxxxxxxxxxxxx"
+              style="
+                width:100%;padding:14px 48px 14px 16px;border-radius:10px;
+                border:1px solid rgba(99,179,237,0.3);background:rgba(255,255,255,0.05);
+                color:#e2e8f0;font-size:0.95rem;font-family:monospace;
+                outline:none;box-sizing:border-box;transition:border 0.2s;
+              "
+              onkeydown="if(event.key==='Enter')saveApiKey()"
+              onfocus="this.style.borderColor='rgba(99,179,237,0.7)'"
+              onblur="this.style.borderColor='rgba(99,179,237,0.3)'"
+            />
+            <button onclick="toggleApiKeyVisibility()" id="toggleEye" style="
+              position:absolute;right:14px;top:50%;transform:translateY(-50%);
+              background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0;
+            ">👁️</button>
+          </div>
+        </div>
+        <button onclick="saveApiKey()" style="
+          width:100%;padding:14px;border-radius:10px;border:none;cursor:pointer;
+          background:linear-gradient(135deg,#3b82f6,#06b6d4);
+          color:#fff;font-size:1rem;font-weight:700;letter-spacing:0.03em;
+          transition:opacity 0.2s,transform 0.1s;
+          box-shadow:0 4px 20px rgba(59,130,246,0.4);
+        "
+        onmouseover="this.style.opacity=0.9"
+        onmouseout="this.style.opacity=1"
+        >✅ Simpan & Mulai Dashboard</button>
+        <p style="color:#4a5568;font-size:0.78rem;text-align:center;margin:16px 0 0;">
+          Dapatkan API key gratis di <a href="https://console.groq.com" target="_blank" style="color:#63b3ed;">console.groq.com</a>
+        </p>
+      </div>
+    </div>
+    <style>
+      @keyframes modalIn {
+        from { opacity:0; transform:scale(0.85) translateY(20px); }
+        to   { opacity:1; transform:scale(1)   translateY(0);     }
+      }
+    </style>
+    <div class="tooltip-d3" id="tooltip"></div>
+
+    <header>
+      <div class="logo-area">
+        <div class="logo-dot"></div>
+        <div>
+          <div class="logo-title">Dashboard Sales</div>
+          <div class="logo-sub">SITI ANNISA SAFITRI - 23082010045</div>
+          <div class="logo-sub">Dataset Sales Adventure Works 2001-2004</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="tab-btn active" onclick="switchTab('dashboard', this)">
+          📊 Dashboard
+        </button>
+        <button class="tab-btn" onclick="switchTab('tableau', this)">
+          📈 Tableau
+        </button>
+      </div>
+    </header>
+
+    <!-- DASHBOARD TAB -->
+    <div id="dashboard-tab" class="tab-content active">
+      <div class="page">
+        <!-- SETUP -->
+        <div class="section-label">01 | KONTEKS BISNIS</div>
+        <div class="ai-headline">
+          <span class="ai-badge">AI</span>
+          <div id="aiHeadlineText">Memuat judul naratif dari AI...</div>
+        </div>
+        <div id="aiSummaryText" class="ai-summary">
+          Memuat ringkasan kondisi bisnis dari AI...
+        </div>
+
+        <div class="filters">
+          <div class="filter-group">
+            <label for="fYear">TAHUN</label>
+            <select id="fYear" onchange="applyFilters()">
+              <option value="all">Semua Tahun</option>
+              <option value="2001">2001</option>
+              <option value="2002">2002</option>
+              <option value="2003">2003</option>
+              <option value="2004">2004</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="fCategory">CATEGORY</label>
+            <select id="fCategory" onchange="applyFilters()">
+              <option value="all">Semua</option>
+              <option value="Bikes">Bikes</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Accessories">Accessories</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="fSubCategory">SUBCATEGORY</label>
+            <select id="fSubCategory" onchange="applyFilters()">
+              <option value="all">Semua</option>
+              <option value="Mountain Bikes">Mountain Bikes</option>
+              <option value="Road Bikes">Road Bikes</option>
+              <option value="Caps">Caps</option>
+              <option value="Tires and Tubes">Tires and Tubes</option>
+              <option value="Bottles and Cages">Bottles and Cages</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="fSegment">SEGMENT</label>
+            <select id="fSegment" onchange="applyFilters()">
+              <option value="all">Semua</option>
+              <option value="Individu">Individu</option>
+              <option value="Shop">Shop</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="fTerritory">TERRITORY</label>
+            <select id="fTerritory" onchange="applyFilters()">
+              <option value="all">Semua</option>
+              <option value="Southwest">Southwest</option>
+              <option value="Northwest">Northwest</option>
+              <option value="Canada">Canada</option>
+              <option value="Australia">Australia</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="Central">Central</option>
+              <option value="France">France</option>
+              <option value="Northeast">Northeast</option>
+              <option value="Germany">Germany</option>
+              <option value="Southeast">Southeast</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">TOTAL SALES</div>
+            <div class="kpi-value" id="kpiSales">—</div>
+            <div class="kpi-sub" id="kpiSalesSub">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">TOTAL PROFIT</div>
+            <div class="kpi-value" id="kpiProfit">—</div>
+            <div class="kpi-sub" id="kpiProfitSub">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">PROFIT MARGIN</div>
+            <div class="kpi-value" id="kpiMargin">—</div>
+            <div class="kpi-sub">dari total sales</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">TOTAL QTY SOLD</div>
+            <div class="kpi-value" id="kpiQty">—</div>
+            <div class="kpi-sub">unit terjual</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">TOTAL ORDERS</div>
+            <div class="kpi-value" id="kpiOrders">—</div>
+            <div class="kpi-sub">order unik</div>
+          </div>
+        </div>
+
+        <!-- CONFLICT -->
+        <div class="section-label">02 | CONFLICT — MASALAH & ANOMALI</div>
+        <div class="section-title">Di mana performa bermasalah?</div>
+        <div id="aiConflictText" class="ai-summary">
+          Memuat narasi konflik dari AI...
+        </div>
+
+        <div class="anomaly-panel">
+          <div class="anomaly-header">
+            <span class="anomaly-title">🚨🚨 ANOMALI TERDETEKSI</span>
+            <span class="badge badge-danger" id="badgeCritical">0 Kritis</span>
+            <span class="badge badge-warn" id="badgeWarning">0 Peringatan</span>
+          </div>
+          <div class="anomaly-tabs">
+            <button
+              class="anom-tab active"
+              onclick="switchAnomTab('raw', this)"
+            >
+              Data Anomali
+            </button>
+            <button class="anom-tab" onclick="switchAnomTab('narrative', this)">
+              Narasi AI
+            </button>
+          </div>
+          <div id="anom-raw" class="anom-content active">
+            <div class="anomaly-list" id="anomalyList">
+              <div style="color: var(--muted); font-size: 0.7rem">
+                Mendeteksi anomali...
+              </div>
+            </div>
+          </div>
+          <div id="anom-narrative" class="anom-content">
+            <div id="anomalyNarrative" style="color: var(--muted)">
+              Klik "Generate Narasi AI" di bawah untuk penjelasan dari AI.
+            </div>
+            <button
+              class="ask-btn"
+              style="margin-top: 10px"
+              id="narrateBtn"
+              onclick="narrateAnomalies()"
+            >
+              🤖 Generate Narasi AI
+            </button>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-title">
+              SALES & PROFIT BY CATEGORY <span>· grouped bar · d3.js</span>
+            </div>
+            <div class="chart-wrap" id="chartCategory"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">
+              PROFIT BY TERRITORY <span>· horizontal bar · d3.js</span>
+            </div>
+            <div class="chart-wrap" id="chartTerritory"></div>
+          </div>
+        </div>
+
+        <div class="charts-grid-1 chart-card">
+          <div class="chart-title">
+            TREN SALES & PROFIT BULANAN
+            <span>· multi-line · d3.js · MoM anomali di-highlight</span>
+          </div>
+          <div class="chart-wrap" id="chartTrend"></div>
+        </div>
+
+        <div class="charts-grid" style="margin-top: 14px">
+          <div class="chart-card">
+            <div class="chart-title">
+              SALES vs PROFIT <span>· scatter subcategory · d3.js</span>
+            </div>
+            <div class="chart-wrap" id="chartScatter"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">
+              PROFIT MARGIN % <span>· bar · z-score anomali · d3.js</span>
+            </div>
+            <div class="chart-wrap" id="chartMargin"></div>
+          </div>
+        </div>
+
+        <div class="charts-grid" style="margin-top: 14px">
+          <div class="chart-card">
+            <div class="chart-title">
+              SALES BY SUBCATEGORY <span>· donut · d3.js</span>
+            </div>
+            <div class="chart-wrap" id="chartSubcat"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">
+              SEGMENT: SALES vs PROFIT <span>· grouped bar · d3.js</span>
+            </div>
+            <div class="chart-wrap" id="chartSegment"></div>
+          </div>
+        </div>
+
+        <div class="charts-grid-1 chart-card" style="margin-top: 14px">
+          <div class="chart-title">
+            TOP PRODUCT BY PROFIT <span>· horizontal bar · d3.js</span>
+          </div>
+          <div class="chart-wrap" id="chartTopProducts"></div>
+        </div>
+
+        <!-- RESOLUTION -->
+        <div class="section-label" style="margin-top: 32px">
+          03 · RESOLUTION — INSIGHT & REKOMENDASI
+        </div>
+        <div class="section-title">Apa yang harus dilakukan?</div>
+        <div id="aiResolutionText" class="ai-summary">
+          Memuat narasi rekomendasi dari AI...
+        </div>
+
+        <div class="insight-grid">
+          <div class="insight-card insight-card-full">
+            <div class="chart-title">🤖 AI INSIGHT & REKOMENDASI</div>
+            <div id="aiNarrative" style="color: var(--muted)">
+              Memuat rekomendasi dari AI...
+            </div>
+            <div class="insight-actions">
+              <button
+                class="quick-btn"
+                onclick="
+                  askQuick('Apa prioritas utama untuk meningkatkan profit?')
+                "
+              >
+                Prioritas profit?
+              </button>
+              <button
+                class="quick-btn"
+                onclick="
+                  askQuick(
+                    'Wilayah mana yang paling bermasalah dan apa solusinya?',
+                  )
+                "
+              >
+                Masalah wilayah?
+              </button>
+              <button
+                class="quick-btn"
+                onclick="
+                  askQuick(
+                    'Berikan rekomendasi strategis berdasarkan data sales ini',
+                  )
+                "
+              >
+                Rekomendasi?
+              </button>
+              <button
+                class="quick-btn"
+                onclick="
+                  askQuick('Kategori mana yang harus difokuskan dan mengapa?')
+                "
+              >
+                Fokus kategori?
+              </button>
+              <button
+                class="quick-btn"
+                onclick="
+                  askQuick(
+                    'Jelaskan perbedaan performa segment Shop vs Individu',
+                  )
+                "
+              >
+                Shop vs Individu?
+              </button>
+            </div>
+            <div class="custom-q">
+              <input
+                id="customQ"
+                type="text"
+                placeholder="Tulis pertanyaanmu tentang data ini..."
+              />
+              <button class="ask-btn" id="askBtn" onclick="askCustom()">
+                Tanya AI →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="insight-card insight-card-full">
+          <div class="chart-title">RINGKASAN PERFORMA PER KATEGORI</div>
+          <table class="perf-table">
+            <thead>
+              <tr>
+                <th>KATEGORI</th>
+                <th>SALES</th>
+                <th>PROFIT</th>
+                <th>MARGIN</th>
+                <th>VISUALISASI</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody id="perfTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <footer
+      style="
+        text-align: center;
+        padding: 18px 32px;
+        border-top: 1px solid var(--border);
+        font-size: 0.62rem;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+      "
+    >
+      Dataset: Adventure Works Sales · Powered by D3.js + AI · SITI ANNISA
+      SAFITRI - 23082010045
+    </footer>
+
+    <!-- TABLEAU TAB -->
+    <div id="tableau-tab" class="tab-content">
+      <div class="page">
+        <div class="section-label">TABLEAU PUBLIC</div>
+        <div class="section-title">Visualisasi Interaktif</div>
+        <div class="tableau-card">
+          <div class="chart-title">📊 Dashboard Tableau Public</div>
+          <p>
+            Visualisasi data Adventure Works Sales dalam format Tableau Public
+            dengan filter, dan tooltip. Klik link untuk membuka di Tableau
+            Public.
+          </p>
+          <a
+            href="https://public.tableau.com/views/DAVIS-EAS-DASHBOARD-045/Dashboard2?:language=en-US&:sid=&:display_count=n&:origin=viz_share_link"
+            target="_blank"
+            rel="noopener"
+            class="tableau-link"
+            >🔗 Buka di Tableau Public ↗</a
+          >
+          <div class="iframe-wrap">
+            <div style="text-align: center">
+              <div style="font-size: 1.4rem; margin-bottom: 8px">📊</div>
+              <div style="font-size: 0.75rem">
+                <div
+                  class="tableauPlaceholder"
+                  id="viz1781634391606"
+                  style="position: relative"
+                >
+                  <noscript
+                    ><a href="#">
+                      <img
+                        alt=" "
+                        src="https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;DA&#47;DAVIS-EAS-DASHBOARD-045&#47;Dashboard2&#47;1_rss.png"
+                        style="border: none"
+                    /></a>
+                  </noscript>
+                  <object class="tableauViz" style="display: none">
+                    <param
+                      name="host_url"
+                      value="https%3A%2F%2Fpublic.tableau.com%2F"
+                    />
+                    <param name="embed_code_version" value="3" />
+                    <param name="site_root" value="" />
+                    <param
+                      name="name"
+                      value="DAVIS-EAS-DASHBOARD-045&#47;Dashboard2"
+                    />
+                    <param name="tabs" value="yes" />
+                    <param name="toolbar" value="yes" />
+                    <param
+                      name="static_image"
+                      value="https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;DA&#47;DAVIS-EAS-DASHBOARD-045&#47;Dashboard2&#47;1.png"
+                    />
+                    <param name="animate_transition" value="yes" />
+                    <param name="display_static_image" value="yes" />
+                    <param name="display_spinner" value="yes" />
+                    <param name="display_overlay" value="yes" />
+                    <param name="display_count" value="yes" />
+                    <param name="language" value="en-US" />
+                  </object>
+                </div>
+                <script type="text/javascript">
+                  var divElement = document.getElementById("viz1781634391606");
+                  var vizElement = divElement.getElementsByTagName("object")[0];
+                  if (divElement.offsetWidth > 800) {
+                    vizElement.style.minWidth = "1000px";
+                    vizElement.style.maxWidth = "100%";
+                    vizElement.style.minHeight = "850px";
+                    vizElement.style.maxHeight =
+                      divElement.offsetWidth * 0.75 + "px";
+                  } else if (divElement.offsetWidth > 500) {
+                    vizElement.style.minWidth = "1000px";
+                    vizElement.style.maxWidth = "100%";
+                    vizElement.style.minHeight = "850px";
+                    vizElement.style.maxHeight =
+                      divElement.offsetWidth * 0.75 + "px";
+                  } else {
+                    vizElement.style.width = "100%";
+                    vizElement.style.minHeight = "1800px";
+                    vizElement.style.maxHeight =
+                      divElement.offsetWidth * 1.77 + "px";
+                  }
+                  var scriptElement = document.createElement("script");
+                  scriptElement.src =
+                    "https://public.tableau.com/javascripts/api/viz_v1.js";
+                  vizElement.parentNode.insertBefore(scriptElement, vizElement);
+                </script>
+              </div>
+              <div
+                style="font-size: 0.6rem; margin-top: 6px; color: var(--muted)"
+              >
+                Edit atribut src pada iframe di dalam HTML ini
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ═══════════════════════════════════════
+      //  PRE-AGGREGATED DATA
+      // ═══════════════════════════════════════
+      const RAW = {
+        monthly: [
+          { m: "2001-07", s: 83938.98, p: 20743.24, mom: null },
+          { m: "2001-08", s: 164415.42, p: 31378.84, mom: 95.87 },
+          { m: "2001-09", s: 111356.85, p: 21860.26, mom: -32.27 },
+          { m: "2001-10", s: 137685.64, p: 33155.44, mom: 23.64 },
+          { m: "2001-11", s: 196791.28, p: 35339.6, mom: 42.93 },
+          { m: "2001-12", s: 177302.66, p: 44260.37, mom: -9.9 },
+          { m: "2002-01", s: 149701.35, p: 43165.3, mom: -15.57 },
+          { m: "2002-02", s: 147924.81, p: 21436.34, mom: -1.19 },
+          { m: "2002-03", s: 173478.71, p: 42881.57, mom: 17.27 },
+          { m: "2002-04", s: 134791.9, p: 30295.93, mom: -22.3 },
+          { m: "2002-05", s: 216045.62, p: 39457.64, mom: 60.28 },
+          { m: "2002-06", s: 159466.45, p: 41566.17, mom: -26.19 },
+          { m: "2002-07", s: 115011.47, p: 20999.05, mom: -27.88 },
+          { m: "2002-08", s: 131643.87, p: 24787.67, mom: 14.46 },
+          { m: "2002-09", s: 120484.59, p: 16441.43, mom: -8.48 },
+          { m: "2002-10", s: 80756.17, p: 14708.01, mom: -32.97 },
+          { m: "2002-11", s: 119186.55, p: 18492.2, mom: 47.59 },
+          { m: "2002-12", s: 122410.47, p: 30583.51, mom: 2.7 },
+          { m: "2003-01", s: 95109.19, p: 24998.63, mom: -22.3 },
+          { m: "2003-02", s: 136350.48, p: 30592.52, mom: 43.36 },
+          { m: "2003-03", s: 101865.3, p: 24915.93, mom: -25.29 },
+          { m: "2003-04", s: 103618.95, p: 22131.29, mom: 1.72 },
+          { m: "2003-05", s: 124190.02, p: 30025.94, mom: 19.85 },
+          { m: "2003-06", s: 113216.7, p: 22856.81, mom: -8.84 },
+          { m: "2003-07", s: 172974.73, p: 37496.89, mom: 52.78 },
+          { m: "2003-08", s: 233807.04, p: 46020.94, mom: 35.17 },
+          { m: "2003-09", s: 228904.52, p: 44644.57, mom: -2.1 },
+          { m: "2003-10", s: 196775.13, p: 44590.74, mom: -14.04 },
+          { m: "2003-11", s: 200773.79, p: 46636.56, mom: 2.03 },
+          { m: "2003-12", s: 261181.93, p: 62166.29, mom: 30.09 },
+          { m: "2004-01", s: 186265.19, p: 49912.57, mom: -28.68 },
+          { m: "2004-02", s: 218841.76, p: 52639.54, mom: 17.49 },
+          { m: "2004-03", s: 218652.36, p: 51161.26, mom: -0.09 },
+          { m: "2004-04", s: 209789.9, p: 50263.16, mom: -4.05 },
+          { m: "2004-05", s: 274591.65, p: 71111.42, mom: 30.89 },
+          { m: "2004-06", s: 251090.15, p: 62363.3, mom: -8.56 },
+          { m: "2004-07", s: 5478.39, p: 3091.24, mom: -97.82 },
+        ],
+        categories: [
+          { name: "Accessories", s: 88974.37, p: 53695.5 },
+          { name: "Bikes", s: 5735666.16, p: 1256679.87 },
+          { name: "Clothing", s: 51229.45, p: -1203.2 },
+        ],
+        subcats: [
+          { name: "Mountain Bikes", s: 3309673.22, p: 807145.05, cat: "Bikes" },
+          { name: "Road Bikes", s: 2425992.94, p: 449534.81, cat: "Bikes" },
+          {
+            name: "Tires and Tubes",
+            s: 60320.21,
+            p: 37760.17,
+            cat: "Accessories",
+          },
+          { name: "Caps", s: 51229.45, p: -1203.2, cat: "Clothing" },
+          {
+            name: "Bottles and Cages",
+            s: 28654.16,
+            p: 15935.33,
+            cat: "Accessories",
+          },
+        ],
+        territories: [
+          { name: "Southwest", s: 1323672.99, p: 287758.53 },
+          { name: "Northwest", s: 984165.97, p: 214422.02 },
+          { name: "Canada", s: 822374.29, p: 101222.81 },
+          { name: "Australia", s: 799260.59, p: 333003.84 },
+          { name: "United Kingdom", s: 411812.06, p: 120557.19 },
+          { name: "Central", s: 335724.77, p: 16108.41 },
+          { name: "France", s: 334863.87, p: 98404.79 },
+          { name: "Northeast", s: 308024.56, p: 9347.87 },
+          { name: "Germany", s: 301755.5, p: 120471.11 },
+          { name: "Southeast", s: 254215.37, p: 7875.59 },
+        ],
+        segments: [
+          { name: "Individu", s: 2726261.44, p: 1167553.13 },
+          { name: "Shop", s: 3149608.54, p: 141619.04 },
+        ],
+        topProducts: [
+          { name: "Mountain-200 Black, 46", s: 3309673.22, p: 807145.05 },
+          { name: "Road-150 Red, 56", s: 1847818.63, p: 406079.28 },
+          { name: "Road-750 Black, 48", s: 578174.31, p: 43455.54 },
+          { name: "HL Road Tire", s: 27970.8, p: 17509.72 },
+          { name: "Water Bottle - 30 oz.", s: 28654.16, p: 15935.33 },
+          { name: "Mountain Tire Tube", s: 15444.05, p: 9667.85 },
+          { name: "Road Tire Tube", s: 9480.24, p: 5934.54 },
+          { name: "Touring Tire Tube", s: 7425.12, p: 4648.07 },
+          { name: "AWC Logo Cap", s: 51229.45, p: -1203.2 },
+        ],
+      };
+
+      // ═══════════════════════════════════════
+      //  UTILS
+      // ═══════════════════════════════════════
+      // API Key dimuat dari localStorage browser (tidak ada di kode sama sekali)
+      let apiKey = localStorage.getItem('groq_api_key') || '';
+
+      // ─── API Key Modal Logic ───────────────────────────────────────
+      function showApiKeyModal() {
+        const overlay = document.getElementById('apiKeyOverlay');
+        overlay.style.display = 'flex';
+        setTimeout(() => document.getElementById('apiKeyInput').focus(), 100);
+      }
+      function hideApiKeyModal() {
+        document.getElementById('apiKeyOverlay').style.display = 'none';
+      }
+      function toggleApiKeyVisibility() {
+        const inp = document.getElementById('apiKeyInput');
+        const eye = document.getElementById('toggleEye');
+        if (inp.type === 'password') { inp.type = 'text';     eye.textContent = '🙈'; }
+        else                         { inp.type = 'password'; eye.textContent = '👁️'; }
+      }
+      function saveApiKey() {
+        const val = document.getElementById('apiKeyInput').value.trim();
+        if (!val || !val.startsWith('gsk_')) {
+          alert('⚠️ API key tidak valid. Pastikan diawali dengan "gsk_"');
+          return;
+        }
+        localStorage.setItem('groq_api_key', val);
+        apiKey = val;
+        hideApiKeyModal();
+      }
+      window.addEventListener('DOMContentLoaded', () => {
+        if (!localStorage.getItem('groq_api_key')) showApiKeyModal();
+      });
+      const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+      const GROQ_MODEL = "llama-3.3-70b-versatile";
+      let globalDetectedAnomalies = [];
+
+      const fmtK = (n) =>
+        n >= 1e6
+          ? "$" + (n / 1e6).toFixed(2) + "M"
+          : n >= 1000
+            ? "$" + (n / 1000).toFixed(1) + "K"
+            : "$" + Math.abs(n).toFixed(0);
+      const fmtFull = (n) => "$" + Math.round(n).toLocaleString("en-US");
+      const tooltip = document.getElementById("tooltip");
+
+      function showTip(html, e) {
+        tooltip.innerHTML = html;
+        tooltip.style.opacity = 1;
+        moveTip(e);
+      }
+      function moveTip(e) {
+        tooltip.style.left = e.pageX + 14 + "px";
+        tooltip.style.top = e.pageY - 10 + "px";
+      }
+      function hideTip() {
+        tooltip.style.opacity = 0;
+      }
+
+      function switchTab(tab, btn) {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((t) => t.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById(tab + "-tab").classList.add("active");
+        btn.classList.add("active");
+      }
+      function switchAnomTab(id, btn) {
+        document
+          .querySelectorAll(".anom-content")
+          .forEach((c) => c.classList.remove("active"));
+        document
+          .querySelectorAll(".anom-tab")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById("anom-" + id).classList.add("active");
+        btn.classList.add("active");
+      }
+      // ═══════════════════════════════════════
+      //  FILTERS + FILTERED DATA
+      // ═══════════════════════════════════════
+      function getFiltered() {
+        const yr = document.getElementById("fYear").value;
+        const cat = document.getElementById("fCategory").value;
+        const sub = document.getElementById("fSubCategory").value;
+        const seg = document.getElementById("fSegment").value;
+        const terr = document.getElementById("fTerritory").value;
+
+        let monthly = RAW.monthly;
+        if (yr !== "all") monthly = monthly.filter((d) => d.m.startsWith(yr));
+
+        const totAll = RAW.monthly.reduce((a, d) => a + d.s, 0);
+        const totFilt = monthly.reduce((a, d) => a + d.s, 0);
+        const ratio = totAll > 0 ? totFilt / totAll : 1;
+        const sc = (d) => ({ ...d, s: d.s * ratio, p: d.p * ratio });
+
+        const catMap = {
+          Bikes: ["Mountain Bikes", "Road Bikes"],
+          Clothing: ["Caps"],
+          Accessories: ["Tires and Tubes", "Bottles and Cages"],
+        };
+        let categories = RAW.categories;
+        let subcats = RAW.subcats;
+        let territories = RAW.territories;
+        let segments = RAW.segments;
+
+        if (cat !== "all") {
+          categories = categories.filter((d) => d.name === cat);
+          subcats = subcats.filter(
+            (d) => catMap[cat] && catMap[cat].includes(d.name),
+          );
+        }
+        if (sub !== "all") subcats = subcats.filter((d) => d.name === sub);
+        if (terr !== "all")
+          territories = territories.filter((d) => d.name === terr);
+        if (seg !== "all") segments = segments.filter((d) => d.name === seg);
+        if (yr !== "all") {
+          categories = categories.map(sc);
+          subcats = subcats.map(sc);
+          territories = territories.map(sc);
+          segments = segments.map(sc);
+        }
+
+        let topProducts = RAW.topProducts;
+        const prodSubMap = {
+          "Mountain-200 Black, 46": "Mountain Bikes",
+          "Road-150 Red, 56": "Road Bikes",
+          "Road-750 Black, 48": "Road Bikes",
+          "HL Road Tire": "Tires and Tubes",
+          "Water Bottle - 30 oz.": "Bottles and Cages",
+          "Mountain Tire Tube": "Tires and Tubes",
+          "Road Tire Tube": "Tires and Tubes",
+          "Touring Tire Tube": "Tires and Tubes",
+          "AWC Logo Cap": "Caps",
+        };
+        const prodCatMap = {
+          "Mountain Bikes": "Bikes",
+          "Road Bikes": "Bikes",
+          "Tires and Tubes": "Accessories",
+          "Bottles and Cages": "Accessories",
+          Caps: "Clothing",
+        };
+        if (cat !== "all")
+          topProducts = topProducts.filter(
+            (p) => prodCatMap[prodSubMap[p.name]] === cat,
+          );
+        if (sub !== "all")
+          topProducts = topProducts.filter((p) => prodSubMap[p.name] === sub);
+        if (yr !== "all") topProducts = topProducts.map(sc);
+        topProducts = [...topProducts].sort((a, b) => b.p - a.p).slice(0, 10);
+
+        const totalS = monthly.reduce((a, d) => a + d.s, 0);
+        const totalP = monthly.reduce((a, d) => a + d.p, 0);
+        return {
+          monthly,
+          categories,
+          subcats,
+          territories,
+          segments,
+          topProducts,
+          totalS,
+          totalP,
+          totalQty: Math.round(27274 * ratio),
+          totalOrders: Math.round(15173 * ratio),
+        };
+      }
+
+      function applyFilters() {
+        const d = getFiltered();
+        updateKPIs(d);
+        drawAll(d);
+        runAnomalyDetection(d);
+      }
+
+      // ═══════════════════════════════════════
+      //  KPI
+      // ═══════════════════════════════════════
+      function updateKPIs(d) {
+        const margin = d.totalS > 0 ? (d.totalP / d.totalS) * 100 : 0;
+        document.getElementById("kpiSales").textContent = fmtK(d.totalS);
+        document.getElementById("kpiProfit").textContent =
+          (d.totalP < 0 ? "-" : "") + fmtK(Math.abs(d.totalP));
+        document.getElementById("kpiProfit").className =
+          "kpi-value " + (d.totalP >= 0 ? "pos" : "neg");
+        document.getElementById("kpiMargin").textContent =
+          margin.toFixed(1) + "%";
+        document.getElementById("kpiMargin").className =
+          "kpi-value " + (margin >= 20 ? "pos" : margin < 0 ? "neg" : "");
+        document.getElementById("kpiQty").textContent =
+          d.totalQty.toLocaleString();
+        document.getElementById("kpiOrders").textContent =
+          d.totalOrders.toLocaleString();
+        document.getElementById("kpiSalesSub").textContent =
+          d.monthly.length + " bulan data";
+        document.getElementById("kpiProfitSub").textContent =
+          "margin " + margin.toFixed(1) + "%";
+      }
+
+      // ═══════════════════════════════════════
+      //  D3 HELPERS
+      // ═══════════════════════════════════════
+      const CLR = {
+        accent: "#00e5c0",
+        accent2: "#ff6b35",
+        accent3: "#ffd166",
+        danger: "#ff3d5a",
+        warn: "#ff9b21",
+        muted: "#5a6a75",
+        border: "#232b30",
+        text: "#e8eff5",
+      };
+      const CAT_COLORS = [
+        "#00e5c0",
+        "#ff6b35",
+        "#ffd166",
+        "#ff3d5a",
+        "#7b68ee",
+      ];
+
+      function clearEl(id) {
+        d3.select("#" + id)
+          .selectAll("*")
+          .remove();
+      }
+
+      function gridX(g, x, h) {
+        g.call(d3.axisBottom(x).tickSize(-h).tickFormat(""))
+          .selectAll("line")
+          .attr("stroke", CLR.border)
+          .attr("stroke-opacity", 0.6);
+        g.select(".domain").remove();
+      }
+      function gridY(g, y, w) {
+        g.call(d3.axisLeft(y).tickSize(-w).tickFormat(""))
+          .selectAll("line")
+          .attr("stroke", CLR.border)
+          .attr("stroke-opacity", 0.6);
+        g.select(".domain").remove();
+      }
+
+      // ═══════════════════════════════════════
+      //  CHART 1: Grouped Bar — Category
+      // ═══════════════════════════════════════
+      function drawCategory(d) {
+        clearEl("chartCategory");
+        const W = document.getElementById("chartCategory").offsetWidth || 500;
+        const margin = { top: 10, right: 10, bottom: 40, left: 60 },
+          w = W - margin.left - margin.right,
+          h = 220;
+        const svg = d3
+          .select("#chartCategory")
+          .append("svg")
+          .attr("width", W)
+          .attr("height", h + margin.top + margin.bottom)
+          .attr("class", "d3-svg")
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const keys = ["s", "p"];
+        const x0 = d3
+          .scaleBand()
+          .domain(d.categories.map((x) => x.name))
+          .range([0, w])
+          .padding(0.25);
+        const x1 = d3
+          .scaleBand()
+          .domain(keys)
+          .range([0, x0.bandwidth()])
+          .padding(0.05);
+        const allVals = d.categories.flatMap((c) => [c.s, c.p]);
+        const y = d3
+          .scaleLinear()
+          .domain([Math.min(0, d3.min(allVals)), d3.max(allVals) * 1.12])
+          .range([h, 0]);
+
+        svg
+          .append("g")
+          .attr("class", "grid")
+          .attr("transform", `translate(0,${h})`)
+          .call((g) => gridX(g, x0, h));
+        svg
+          .append("g")
+          .attr("class", "grid")
+          .call((g) => gridY(g, y, w));
+        svg
+          .append("g")
+          .attr("transform", `translate(0,${h})`)
+          .call(d3.axisBottom(x0))
+          .selectAll("text")
+          .style("fill", CLR.text)
+          .style("font-family", "'DM Mono',monospace")
+          .style("font-size", "10px");
+        svg
+          .append("g")
+          .call(
+            d3
+              .axisLeft(y)
+              .ticks(5)
+              .tickFormat((v) => fmtK(v)),
+          )
+          .selectAll("text")
+          .style("fill", CLR.muted)
+          .style("font-size", "9px");
+        svg.select(".domain").remove();
+
+        svg
+          .append("line")
+          .attr("x1", 0)
+          .attr("x2", w)
+          .attr("y1", y(0))
+          .attr("y2", y(0))
+          .attr("stroke", CLR.muted)
+          .attr("stroke-width", 0.8)
+          .attr("stroke-dasharray", "4,3");
+
+        const catG = svg
+          .selectAll(".cat")
+          .data(d.categories)
+          .join("g")
+          .attr("transform", (cat) => `translate(${x0(cat.name)},0)`);
+        catG
+          .selectAll("rect")
+          .data((cat) => [
+            { k: "s", v: cat.s, lbl: "Sales" },
+            { k: "p", v: cat.p, lbl: "Profit" },
+          ])
+          .join("rect")
+          .attr("x", (dd) => x1(dd.k))
+          .attr("width", x1.bandwidth())
+          .attr("y", (dd) => (dd.v >= 0 ? y(dd.v) : y(0)))
+          .attr("height", (dd) => Math.abs(y(dd.v) - y(0)))
+          .attr("fill", (dd) =>
+            dd.k === "s" ? CLR.accent : dd.v < 0 ? CLR.danger : CLR.accent2,
+          )
+          .attr("rx", 3)
+          .attr("opacity", 0.85)
+          .on("mouseover", (e, dd) =>
+            showTip(`<b>${dd.lbl}</b><br>${fmtFull(dd.v)}`, e),
+          )
+          .on("mousemove", moveTip)
+          .on("mouseout", hideTip);
+
+        const leg = svg
+          .append("g")
+          .attr("transform", `translate(${w - 100},-2)`);
+        [
+          ["Sales", CLR.accent],
+          ["Profit", CLR.accent2],
+        ].forEach(([lbl, clr], i) => {
+          leg
+            .append("rect")
+            .attr("x", i * 55)
+            .attr("width", 10)
+            .attr("height", 10)
+            .attr("fill", clr)
+            .attr("rx", 2);
+          leg
+            .append("text")
+            .attr("x", i * 55 + 13)
+            .attr("y", 9)
+            .text(lbl)
+            .style("fill", CLR.text)
+            .style("font-size", "9px")
+            .style("font-family", "'DM Mono',monospace");
+        });
+      }
+
+      // ═══════════════════════════════════════
+      //  CHART 2: Horizontal Bar — Territory
+      // ═══════════════════════════════════════
+      function drawTerritory(d) {
+        clearEl("chartTerritory");
+        const sorted = [...d.territories].sort((a, b) => a.p - b.p);
+        const W = document.getElementById("chartTerritory").offsetWidth || 500;
+        const margin = { top: 10, right: 20, bottom: 30, left: 100 },
+          w = W - margin.left - margin.right,
+          h = Math.max(200, sorted.length * 22);
+        const svg = d3
+          .select("#chartTerritory")
+          .append("svg")
+          .attr("width", W)
+          .attr("height", h + margin.top + margin.bottom)
+          .attr("class", "d3-svg")
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const y = d3
+          .scaleBand()
+          .domain(sorted.map((x) => x.name))
+          .range([0, h])
+          .padding(0.22);
+        const x = d3
+          .scaleLinear()
+          .domain([
+            Math.min(
+              0,
+              d3.min(sorted, (x) => x.p),
+            ),
+            d3.max(sorted, (x) => x.p) * 1.1,
+          ])
+          .range([0, w]);
+
+        svg.append("g").call((g) => gridY(g, y, w));
+        svg
+          .append("g")
+          .call(d3.axisLeft(y))
+          .selectAll("text")
+          .style("fill", CLR.text)
+          .style("font-size", "9px")
+          .style("font-family", "'DM Mono',monospace");
+        svg
+          .append("g")
+          .attr("transform", `translate(0,${h})`)
+          .call(
+            d3
+              .axisBottom(x)
+              .ticks(4)
+              .tickFormat((v) => fmtK(v)),
+          )
+          .selectAll("text")
+          .style("fill", CLR.muted)
+          .style("font-size", "9px");
+        svg.select(".domain").remove();
+
+        const avgP = d3.mean(sorted, (x) => x.p);
+        svg
+          .selectAll("rect")
+          .data(sorted)
+          .join("rect")
+          .attr("y", (dd) => y(dd.name))
+          .attr("x", 0)
+          .attr("height", y.bandwidth())
+          .attr("width", (dd) => Math.max(0, x(dd.p)))
+          .attr("fill", (dd) =>
+            dd.p < avgP * 0.3
+              ? CLR.danger
+              : dd.p < avgP * 0.7
+                ? CLR.warn
+                : CLR.accent,
+          )
+          .attr("rx", 3)
+          .attr("opacity", 0.85)
+          .on("mouseover", (e, dd) =>
+            showTip(
+              `<b>${dd.name}</b><br>Profit: ${fmtFull(dd.p)}<br>Sales: ${fmtFull(dd.s)}`,
+              e,
+            ),
+          )
+          .on("mousemove", moveTip)
+          .on("mouseout", hideTip);
+      }
+
+      // ═══════════════════════════════════════
+      //  CHART 3: Multi-Line Trend
+      // ═══════════════════════════════════════
+      function drawTrend(d) {
+        clearEl("chartTrend");
+        const W = document.getElementById("chartTrend").offsetWidth || 900;
+        const margin = { top: 14, right: 20, bottom: 50, left: 65 },
+          w = W - margin.left - margin.right,
+          h = 260;
+        const svg = d3
+          .select("#chartTrend")
+          .append("svg")
+          .attr("width", W)
+          .attr("height", h + margin.top + margin.bottom)
+          .attr("class", "d3-svg")
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const parseM = d3.timeParse("%Y-%m");
+        const data = d.monthly.map((x) => ({ ...x, date: parseM(x.m) }));
+        const x = d3
+          .scaleTime()
+          .domain(d3.extent(data, (x) => x.date))
+          .range([0, w]);
+        const y = d3
+          .scaleLinear()
+          .domain([0, d3.max(data, (x) => x.s) * 1.12])
+          .range([h, 0]);
+
+        svg
+          .append("g")
+          .attr("class", "grid")
+          .attr("transform", `translate(0,${h})`)
+          .call((g) =>
+            g
+              .call(d3.axisBottom(x).tickSize(-h).tickFormat(""))
+              .selectAll("line")
+              .attr("stroke", CLR.border)
+              .attr("stroke-opacity", 0.5),
+          );
+        svg
+          .append("g")
+          .attr("class", "grid")
+          .call((g) =>
+            g
+              .call(d3.axisLeft(y).tickSize(-w).tickFormat(""))
+              .selectAll("line")
+              .attr("stroke", CLR.border)
+              .attr("stroke-opacity", 0.5),
+          );
+        svg.selectAll(".domain").remove();
+
+        const tickCount = Math.min(data.length, 10);
+        svg
+          .append("g")
+          .attr("transform", `translate(0,${h})`)
+          .call(
+            d3
+              .axisBottom(x)
+              .ticks(tickCount)
+              .tickFormat(d3.timeFormat("%b %y")),
+          )
+          .selectAll("text")
+          .style("fill", CLR.muted)
+          .style("font-size", "9px")
+          .attr("transform", "rotate(-35)")
+          .attr("text-anchor", "end");
+        svg
+          .append("g")
+          .call(
+            d3
+              .axisLeft(y)
+              .ticks(6)
+              .tickFormat((v) => fmtK(v)),
+          )
+          .selectAll("text")
+          .style("fill", CLR.muted)
+          .style("font-size", "9px");
+
+        const area = d3
+          .area()
+          .x((dd) => x(dd.date))
+          .y0(h)
+          .y1((dd) => y(dd.s))
+          .curve(d3.curveCatmullRom);
+        svg
+          .append("path")
+          .datum(data)
+          .attr("fill", CLR.accent)
+          .attr("fill-opacity", 0.07)
+          .attr("d", area);
+
+        svg
+          .selectAll(".mom-dot")
+          .data(data.filter((dd) => dd.mom !== null && dd.mom <= -25))
+          .join("circle")
+          .attr("cx", (dd) => x(dd.date))
+          .attr("cy", (dd) => y(dd.s))
+          .attr("r", 5)
+          .attr("fill", CLR.danger)
+          .attr("fill-opacity", 0.9)
+          .on("mouseover", (e, dd) =>
+            showTip(
+              `<b>${dd.m}</b><br>Sales: ${fmtK(dd.s)}<br>MoM: ${dd.mom.toFixed(1)}% ⚠️`,
+              e,
+            ),
+          )
+          .on("mousemove", moveTip)
+          .on("mouseout", hideTip);
+
+        const lineS = d3
+          .line()
+          .x((dd) => x(dd.date))
+          .y((dd) => y(dd.s))
+          .curve(d3.curveCatmullRom);
+        const lineP = d3
+          .line()
+          .x((dd) => x(dd.date))
+          .y((dd) => y(dd.p))
+          .curve(d3.curveCatmullRom);
+        svg
+          .append("path")
+          .datum(data)
+          .attr("fill", "none")
+          .attr("stroke", CLR.accent)
+          .attr("stroke-width", 2)
+          .attr("d", lineS);
+        svg
+          .append("path")
+          .datum(data)
+          .attr("fill", "none")
+          .attr("stroke", CLR.accent2)
+          .attr("stroke-width", 2)
+          .attr("stroke-dasharray", "5,3")
+          .attr("d", lineP);
+
+        const leg = svg
+          .append("g")
+          .attr("transform", `translate(${w - 160},0)`);
+        [
+          [CLR.accent, "Sales"],
+          [CLR.accent2, "Profit"],
+          [CLR.danger, "MoM Drop ≤-25%"],
+        ].forEach(([clr, lbl], i) => {
+          leg
+            .append(i === 2 ? "circle" : "line")
+            .attr(i === 2 ? "cx" : "x1", 0)
+            .attr(i === 2 ? "cy" : "y1", i * 16 + 5)
+            .attr(i === 2 ? "r" : null, i === 2 ? 5 : null)
+            .attr(i === 2 ? null : "x2", i === 2 ? null : 12)
+            .attr(i === 2 ? null : "y2", i === 2 ? null : i * 16 + 5)
+            .attr("stroke", i < 2 ? clr : null)
+            .attr("fill", i === 2 ? clr : "none")
+            .attr("stroke-width", 2);
+          leg
+            .append("text")
+            .attr("x", i === 2 ? 12 : 16)
+            .attr("y", i * 16 + 9)
+            .text(lbl)
+            .style("fill", CLR.text)
+            .style("font-size", "9px")
+            .style("font-family", "'DM Mono',monospace");
+        });
+      }
+
+      // ═══════════════════════════════════════
+      //  CHART 4: Scatter — SubCategory
+      // ═══════════════════════════════════════
+      function drawScatter(d) {
+        clearEl("chartScatter");
+        const W = document.getElementById("chartScatter").offsetWidth || 460;
+        const margin = { top: 10, right: 20, bottom: 40, left: 65 },
+          w = W - margin.left - margin.right,
+          h = 220;
+        const svg = d3
+          .select("#chartScatter")
+          .append("svg")
+          .attr("width", W)
+          .attr("height", h + margin.top + margin.bottom)
+          .attr("class", "d3-svg")
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const minP = d3.min(d.subcats, (x) => x.p);
+        const x = d3
+          .scaleLinear()
+          .domain([0, d3.max(d.subcats, (x) => x.s) * 1.1])
+          .range([0, w]);
+        const y = d3
+          .scaleLinear()
+          .domain([
+            minP < 0 ? minP * 1.15 : 0,
+            d3.max(d.subcats, (x) => x.p) * 1.15,
+          ])
+          .range([h, 0]);
+
+        svg
+          .append("g")
+          .attr("class", "grid")
+          .attr("transform", `translate(0,${h})`)
+          .call((g) => gridX(g, x, h));
+        svg
+          .append("g")
+          .attr("class", "grid")
+          .call((g) => gridY(g, y, w));
+        svg.selectAll(".domain").remove();
+        svg
+          .append("g")
+          .attr("transform", `translate(0,${h})`)
+          .call(
+            d3
+              .axisBottom(x)
+              .ticks(4)
+              .tickFormat((v) => fmtK(v)),
+          )
+          .selectAll("text")
+          .style("fill", CLR.muted)
+          .style("font-size", "9px");
+        svg
+          .append("g")
+          .call(
+            d3
+              .axisLeft(y)
+              .ticks(5)
+              .tickFormat((v) => fmtK(v)),
+          )
+          .selectAll("text")
+          .style("fill", CLR.muted)
+          .style("font-size", "9px");
+
+        if (minP < 0)
+          svg
+            .append("line")
+            .attr("x1", 0)
+            .attr("x2", w)
+            .attr("y1", y(0))
+            .attr("y2", y(0))
+            .attr("stroke", CLR.muted)
+            .attr("stroke-width", 0.8)
+            .attr("stroke-dasharray", "4,3");
+
+        const color = (_, i) => CAT_COLORS[i % CAT_COLORS.length];
+        svg
+          .selectAll("circle")
+          .data(d.subcats)
+          .join("circle")
+          .attr("cx", (dd) => x(dd.s))
+          .attr("cy", (dd) => y(dd.p))
+          .attr("r", 12)
+          .attr("fill", (dd, i) => (dd.p < 0 ? CLR.danger : color(dd, i)))
+          .attr("fill-opacity", 0.8)
+          .attr("stroke", "rgba(255,255,255,.15)")
+          .attr("stroke-width", 1)
+          .on("mouseover", (e, dd) =>
+            showTip(
+              `<b>${dd.name}</b><br>Sales: ${fmtFull(dd.s)}<br>Profit: ${fmtFull(dd.p)}`,
+              e,
+            ),
+          )
+          .on("mousemove", moveTip)
+          .on("mouseout", hideTip);
+
+        svg
+          .selectAll(".slbl")
+          .data(d.subcats)
+          .join("text")
+          .attr("class", "slbl")
+          .attr("x", (dd) => x(dd.s) + 14)
+          .attr("y", (dd) => y(dd.p) + 4)
+          .text((dd) => dd.name.split(" ")[0])
+          .style("fill", CLR.text)
+          .style("font-size", "9px")
+          .style("font-family", "'DM Mono',monospace");
+      }
+
+      // ═══════════════════════════════════════
+      //  CHART 5: Bar — Profit Margin Z-Score
+      // ═══════════════════════════════════════
+      function drawMargin(d) {
+        clearEl("chartMargin");
+        const sc = d.subcats.map((x) => ({
+          name: x.name,
+          margin: x.s > 0 ? (x.p / x.s) * 100 : 0,
+        }));
+        const vals = sc.map((x) => x.margin);
+        const mean = d3.mean(vals),
+          std = d3.deviation(vals) || 1;
+        sc.forEach((x) => (x.z = (x.margin - mean) / std));
+
+        const W = document.getElementById("chartMargin").offsetWidth || 460;
+        const margin = { top: 10, right: 10, bottom: 50, left: 50 },
+          w = W - margin.left - margin.right,
+          h = 200;
+        const svg = d3
+          .select("#chartMargin")
+          .append("svg")
+          .attr("width", W)
+          .attr("height", h + margin.top + margin.bottom)
+          .attr("class", "d3-svg")
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3
+          .scaleBand()
+          .domain(sc.map((x) => x.name))
+          .range([0, w])
+          .padding(0.3);
+        const y = d3
+          .scaleLinear()
+          .domain([Math.min(0, d3.min(vals)) * 1.3, d3.max(vals) * 1.2])
+          .range([h, 0]);
+
+        svg
+          .append("g")
+          .attr("class", "grid")
+          .call((g) => gridY(g, y, w));
+        svg.selectAll(".domain").remove();
+        svg
+          .append("g")
+          .attr("transform", `translate(0,${h})`)
+          .call(d3.axisBottom(x))
+          .selectAll("text")
+          .style("fill", CLR.text)
+          .style("font-size", "9px")
+          .style("font-family", "'DM Mono',monospace")
+          .attr("transform", "rotate(-20)")
+          .attr("text-anchor", "end");
+        svg
+          .append("g")
+          .call(
+            d3
+              .axisLeft(y)
+              .ticks(5)
+              .tickFormat((v) => v + "%"),
+          )
+          .selectAll("text")
+          .style("fill", CLR.muted)
+          .style("font-size", "9px");
+
+        const barColor = (dd) =>
+          Math.abs(dd.z) > 1.5
+            ? CLR.danger
+            : Math.abs(dd.z) > 1.0
+              ? CLR.warn
+              : CLR.accent;
+        svg
+          .selectAll("rect")
+          .data(sc)
+          .join("rect")
+          .attr("x", (dd) => x(dd.name))
+          .attr("width", x.bandwidth())
+          .attr("y", (dd) => (dd.margin >= 0 ? y(dd.margin) : y(0)))
+          .attr("height", (dd) => Math.abs(y(dd.margin) - y(0)))
+          .attr("fill", barColor)
+          .attr("rx", 3)
+          .attr("opacity", 0.85)
+          .on("mouseover", (e, dd) =>
+            showTip(
+              `<b>${dd.name}</b><br>Margin: ${dd.margin.toFixed(1)}%<br>Z-Score: ${dd.z.toFixed(2)}${Math.abs(dd.z) > 1.5 ? " ⚠️ Anomali" : ""}`,
+              e,
+            ),
+          )
+          .on("mousemove", moveTip)
+          .on("mouseout", hideTip);
+
+        svg
+          .append("line")
+          .attr("x1", 0)
+          .attr("x2", w)
+          .attr("y1", y(mean))
+          .attr("y2", y(mean))
+          .attr("stroke", CLR.accent3)
+          .attr("stroke-width", 1.5)
+          .attr("stroke-dasharray", "5,3");
+        svg
+          .append("text")
+          .attr("x", w - 2)
+          .attr("y", y(mean) - 5)
+          .text("avg")
+          .style("fill", CLR.accent3)
+          .style("font-size", "9px")
+          .style("text-anchor", "end");
+      }
+
+      // ═══════════════════════════════════════
+      //  CHART 6: Donut — SubCategory
+      // ═══════════════════════════════════════
+      function drawSubcatDonut(d) {
+        clearEl("chartSubcat");
+        const W = document.getElementById("chartSubcat").offsetWidth || 460,
+          H = 260;
+        const r = Math.min(W, H) / 2 - 30;
+        const svg = d3
+          .select("#chartSubcat")
+          .append("svg")
+          .attr("width", W)
+          .attr("height", H)
+          .attr("class", "d3-svg")
+          .append("g")
+          .attr("transform", `translate(${W / 2},${H / 2})`);
+
+        const pie = d3
+          .pie()
+          .value((x) => x.s)
+          .sort(null);
+        const arc = d3
+          .arc()
+          .innerRadius(r * 0.62)
+          .outerRadius(r);
+        const arcHover = d3
+          .arc()
+          .innerRadius(r * 0.62)
+          .outerRadius(r + 8);
+        const color = d3
+          .scaleOrdinal()
+          .domain(d.subcats.map((x) => x.name))
+          .range(CAT_COLORS);
+
+        svg
+          .selectAll("path")
+          .data(pie(d.subcats))
+          .join("path")
+          .attr("d", arc)
+          .attr("fill", (dd) => color(dd.data.name))
+          .attr("stroke", "rgba(10,13,15,.6)")
+          .attr("stroke-width", 2)
+          .on("mouseover", function (e, dd) {
+            d3.select(this).transition().duration(120).attr("d", arcHover);
+            showTip(
+              `<b>${dd.data.name}</b><br>Sales: ${fmtFull(dd.data.s)}<br>${((dd.data.s / d.totalS) * 100).toFixed(1)}% of total`,
+              e,
+            );
+          })
+          .on("mousemove", moveTip)
+          .on("mouseout", function () {
+            d3.select(this).transition().duration(120).attr("d", arc);
+            hideTip();
+          });
+
+        svg
+          .append("text")
+          .attr("text-anchor", "middle")
+          .attr("dy", "-0.3em")
+          .text(fmtK(d.totalS))
+          .style("fill", CLR.text)
+          .style("font-family", "'Syne',sans-serif")
+          .style("font-size", "16px")
+          .style("font-weight", "800");
+        svg
+          .append("text")
+          .attr("text-anchor", "middle")
+          .attr("dy", "1.1em")
+          .text("Total Sales")
+          .style("fill", CLR.muted)
+          .style("font-family", "'DM Mono',monospace")
+          .style("font-size", "9px");
+
+        const legX = W / 2 - r - 20,
+          legStartY = -r + 10;
+        d.subcats.forEach((sc, i) => {
+          svg
+            .append("rect")
+            .attr("x", legX - W / 2)
+            .attr("y", legStartY - r / 2 + i * 18)
+            .attr("width", 10)
+            .attr("height", 10)
+            .attr("fill", color(sc.name))
+            .attr("rx", 2);
+          svg
+            .append("text")
+            .attr("x", legX - W / 2 + 13)
+            .attr("y", legStartY - r / 2 + i * 18 + 9)
+            .text(sc.name)
+            .style("fill", CLR.text)
+            .style("font-size", "9px")
+            .style("font-family", "'DM Mono',monospace");
+        });
+      }
+
+      // ═══════════════════════════════════════
+      //  CHART 7: Grouped Bar — Segment
+      // ═══════════════════════════════════════
+      function drawSegment(d) {
+        clearEl("chartSegment");
+        const W = document.getElementById("chartSegment").offsetWidth || 460;
+        const margin = { top: 10, right: 20, bottom: 40, left: 65 },
+          w = W - margin.left - margin.right,
+          h = 200;
+        const svg = d3
+          .select("#chartSegment")
+          .append("svg")
+          .attr("width", W)
+          .attr("height", h + margin.top + margin.bottom)
+          .attr("class", "d3-svg")
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x0 = d3
+          .scaleBand()
+          .domain(d.segments.map((x) => x.name))
+          .range([0, w])
+          .padding(0.3);
+        const x1 = d3
+          .scaleBand()
+          .domain(["s", "p"])
+          .range([0, x0.bandwidth()])
+          .padding(0.05);
+        const y = d3
+          .scaleLinear()
+          .domain([0, d3.max(d.segments, (x) => x.s) * 1.15])
+          .range([h, 0]);
+
+        svg
+          .append("g")
+          .attr("class", "grid")
+          .call((g) => gridY(g, y, w));
+        svg.selectAll(".domain").remove();
+        svg
+          .append("g")
+          .attr("transform", `translate(0,${h})`)
+          .call(d3.axisBottom(x0))
+          .selectAll("text")
+          .style("fill", CLR.text)
+          .style("font-size", "11px")
+          .style("font-family", "'DM Mono',monospace");
+        svg
+          .append("g")
+          .call(
+            d3
+              .axisLeft(y)
+              .ticks(5)
+              .tickFormat((v) => fmtK(v)),
+          )
+          .selectAll("text")
+          .style("fill", CLR.muted)
+          .style("font-size", "9px");
+
+        const segG = svg
+          .selectAll(".seg")
+          .data(d.segments)
+          .join("g")
+          .attr("transform", (seg) => `translate(${x0(seg.name)},0)`);
+        segG
+          .selectAll("rect")
+          .data((seg) => [
+            { k: "s", v: seg.s, lbl: "Sales" },
+            { k: "p", v: seg.p, lbl: "Profit" },
+          ])
+          .join("rect")
+          .attr("x", (dd) => x1(dd.k))
+          .attr("width", x1.bandwidth())
+          .attr("y", (dd) => y(dd.v))
+          .attr("height", (dd) => h - y(dd.v))
+          .attr("fill", (dd) => (dd.k === "s" ? CLR.accent : CLR.accent2))
+          .attr("rx", 3)
+          .attr("opacity", 0.85)
+          .on("mouseover", (e, dd) =>
+            showTip(`<b>${dd.lbl}</b><br>${fmtFull(dd.v)}`, e),
+          )
+          .on("mousemove", moveTip)
+          .on("mouseout", hideTip);
+
+        d.segments.forEach((seg) => {
+          const m = seg.s > 0 ? ((seg.p / seg.s) * 100).toFixed(1) + "%" : "—";
+          svg
+            .append("text")
+            .attr("x", x0(seg.name) + x0.bandwidth() / 2)
+            .attr("y", h + 28)
+            .text("margin " + m)
+            .attr("text-anchor", "middle")
+            .style("fill", CLR.muted)
+            .style("font-size", "9px")
+            .style("font-family", "'DM Mono',monospace");
+        });
+      }
+
+      // ═══════════════════════════════════════
+      //  CHART 8: Top Products by Profit
+      // ═══════════════════════════════════════
+      function drawTopProducts(d) {
+        clearEl("chartTopProducts");
+        const sorted = [...d.topProducts].sort((a, b) => a.p - b.p);
+        const W =
+          document.getElementById("chartTopProducts").offsetWidth || 900;
+        const margin = { top: 10, right: 30, bottom: 30, left: 150 },
+          w = W - margin.left - margin.right,
+          h = Math.max(180, sorted.length * 26);
+        const svg = d3
+          .select("#chartTopProducts")
+          .append("svg")
+          .attr("width", W)
+          .attr("height", h + margin.top + margin.bottom)
+          .attr("class", "d3-svg")
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const y = d3
+          .scaleBand()
+          .domain(sorted.map((x) => x.name))
+          .range([0, h])
+          .padding(0.25);
+        const minP = d3.min(sorted, (x) => x.p);
+        const x = d3
+          .scaleLinear()
+          .domain([Math.min(0, minP * 1.15), d3.max(sorted, (x) => x.p) * 1.1])
+          .range([0, w]);
+
+        svg.append("g").call((g) => gridY(g, y, w));
+        svg
+          .append("g")
+          .call(d3.axisLeft(y))
+          .selectAll("text")
+          .style("fill", CLR.text)
+          .style("font-size", "9px")
+          .style("font-family", "'DM Mono',monospace");
+        svg
+          .append("g")
+          .attr("transform", `translate(0,${h})`)
+          .call(
+            d3
+              .axisBottom(x)
+              .ticks(5)
+              .tickFormat((v) => fmtK(v)),
+          )
+          .selectAll("text")
+          .style("fill", CLR.muted)
+          .style("font-size", "9px");
+        svg.selectAll(".domain").remove();
+
+        if (minP < 0)
+          svg
+            .append("line")
+            .attr("x1", x(0))
+            .attr("x2", x(0))
+            .attr("y1", 0)
+            .attr("y2", h)
+            .attr("stroke", CLR.muted)
+            .attr("stroke-width", 0.8)
+            .attr("stroke-dasharray", "4,3");
+
+        svg
+          .selectAll("rect")
+          .data(sorted)
+          .join("rect")
+          .attr("y", (dd) => y(dd.name))
+          .attr("height", y.bandwidth())
+          .attr("x", (dd) => (dd.p >= 0 ? x(0) : x(dd.p)))
+          .attr("width", (dd) => Math.abs(x(dd.p) - x(0)))
+          .attr("fill", (dd) => (dd.p < 0 ? CLR.danger : CLR.accent))
+          .attr("rx", 3)
+          .attr("opacity", 0.85)
+          .on("mouseover", (e, dd) =>
+            showTip(
+              `<b>${dd.name}</b><br>Profit: ${fmtFull(dd.p)}<br>Sales: ${fmtFull(dd.s)}`,
+              e,
+            ),
+          )
+          .on("mousemove", moveTip)
+          .on("mouseout", hideTip);
+      }
+
+      // ═══════════════════════════════════════
+      //  DRAW ALL
+      // ═══════════════════════════════════════
+      function drawAll(d) {
+        drawCategory(d);
+        drawTerritory(d);
+        drawTrend(d);
+        drawScatter(d);
+        drawMargin(d);
+        drawSubcatDonut(d);
+        drawSegment(d);
+        drawTopProducts(d);
+        updatePerfTable(d);
+      }
+
+      // ═══════════════════════════════════════
+      //  PERF TABLE
+      // ═══════════════════════════════════════
+      function updatePerfTable(d) {
+        const body = document.getElementById("perfTableBody");
+        body.innerHTML = d.categories
+          .map((c) => {
+            const m = c.s > 0 ? (c.p / c.s) * 100 : 0;
+            const bw = Math.max(0, Math.min(120, Math.abs(m) * 1.5));
+            const status =
+              m < 0 ? "🔴 Rugi" : m < 15 ? "🟡 Rendah" : "🟢 Sehat";
+            return `<tr>
+      <td style="font-weight:500">${c.name}</td>
+      <td>${fmtK(c.s)}</td>
+      <td style="color:${c.p < 0 ? "var(--danger)" : "var(--accent)"}">${(c.p < 0 ? "-" : "") + fmtK(Math.abs(c.p))}</td>
+      <td>${m.toFixed(1)}%</td>
+      <td><span class="mbar" style="width:${bw}px;background:${m < 0 ? "var(--danger)" : m < 15 ? "var(--warn)" : "var(--accent)"}"></span></td>
+      <td>${status}</td></tr>`;
+          })
+          .join("");
+      }
+
+      // ═══════════════════════════════════════
+      //  ANOMALY DETECTION
+      // ═══════════════════════════════════════
+      function runAnomalyDetection(d) {
+        const anomalies = [];
+
+        // 1. Z-Score
+        const sc = d.subcats.map((x) => ({
+          name: x.name,
+          margin: x.s > 0 ? (x.p / x.s) * 100 : 0,
+          s: x.s,
+          p: x.p,
+        }));
+        const mVals = sc.map((x) => x.margin);
+        const mean = d3.mean(mVals),
+          std = d3.deviation(mVals) || 1;
+        sc.forEach((x) => {
+          const z = (x.margin - mean) / std;
+          if (Math.abs(z) > 1.5) {
+            anomalies.push({
+              type: x.margin < 0 ? "critical" : "warning",
+              title: `Z-Score: ${x.name}`,
+              desc: `Margin ${x.margin.toFixed(1)}% (Z=${z.toFixed(2)}) — jauh dari rata-rata ${mean.toFixed(1)}%. ${x.margin < 0 ? "🔴 Kategori ini merugi!" : "🟡 Margin sangat tinggi dibanding subcategory lain."}`,
+            });
+          }
+        });
+
+        // 2. MoM Drop
+        d.monthly.forEach((m) => {
+          if (m.mom !== null && m.mom !== undefined) {
+            if (m.mom <= -40)
+              anomalies.push({
+                type: "critical",
+                title: `MoM Drop Ekstrem: ${m.m}`,
+                desc: `Penjualan turun ${Math.abs(m.mom).toFixed(1)}% dari bulan sebelumnya. Penurunan drastis ini perlu investigasi segera.`,
+              });
+            else if (m.mom <= -25)
+              anomalies.push({
+                type: "warning",
+                title: `MoM Drop: ${m.m}`,
+                desc: `Penjualan turun ${Math.abs(m.mom).toFixed(1)}% dari bulan sebelumnya. Perlu perhatian lebih lanjut.`,
+              });
+          }
+        });
+
+        // 3. IQR Outlier
+        const profitsSorted = [...d.territories].sort((a, b) => a.p - b.p);
+        const q1 = profitsSorted[Math.floor(profitsSorted.length * 0.25)].p;
+        const q3 = profitsSorted[Math.floor(profitsSorted.length * 0.75)].p;
+        const iqr = q3 - q1;
+        d.territories.forEach((t) => {
+          if (t.p < q1 - 1.5 * iqr && t.s > 50000) {
+            anomalies.push({
+              type: "warning",
+              title: `IQR Outlier: ${t.name}`,
+              desc: `Sales ${fmtK(t.s)} tapi profit ${fmtK(t.p)} — jauh di bawah kuartil bawah (IQR). Margin sangat rendah dibanding wilayah lain.`,
+            });
+          }
+        });
+
+        // 4. Segment gap
+        if (d.segments.length === 2) {
+          const shopM = d.segments.find((s) => s.name === "Shop");
+          const indM = d.segments.find((s) => s.name === "Individu");
+          if (shopM && indM) {
+            const sm = shopM.s > 0 ? (shopM.p / shopM.s) * 100 : 0;
+            const im = indM.s > 0 ? (indM.p / indM.s) * 100 : 0;
+            if (Math.abs(sm - im) > 25)
+              anomalies.push({
+                type: "warning",
+                title: "Gap Besar: Shop vs Individu",
+                desc: `Margin Shop ${sm.toFixed(1)}% vs Individu ${im.toFixed(1)}%. Kesenjangan besar — strategi harga perlu dievaluasi.`,
+              });
+          }
+        }
+
+        globalDetectedAnomalies = anomalies;
+        document.getElementById("badgeCritical").textContent =
+          anomalies.filter((a) => a.type === "critical").length + " Kritis";
+        document.getElementById("badgeWarning").textContent =
+          anomalies.filter((a) => a.type === "warning").length + " Peringatan";
+
+        const list = document.getElementById("anomalyList");
+        if (!anomalies.length) {
+          list.innerHTML =
+            '<div style="color:var(--muted);font-size:.7rem">✅ Tidak ada anomali signifikan terdeteksi.</div>';
+          return;
+        }
+        list.innerHTML = anomalies
+          .map(
+            (a) => `
+    <div class="anomaly-item">
+      <div class="anomaly-dot ${a.type}"></div>
+      <div><div class="anomaly-item-title">${a.title}</div><div class="anomaly-item-desc">${a.desc}</div></div>
+    </div>`,
+          )
+          .join("");
+      }
+
+      // ═══════════════════════════════════════
+      //  GROQ API INTEGRATION
+      // ═══════════════════════════════════════
+      function buildCtx() {
+        const d = getFiltered();
+        const m = d.totalS > 0 ? ((d.totalP / d.totalS) * 100).toFixed(1) : 0;
+        return `Data Adventure Works Sales (2001-2004):
+- Total Sales: ${fmtK(d.totalS)}, Profit: ${fmtK(d.totalP)}, Margin: ${m}%
+- Qty: ${d.totalQty.toLocaleString()}, Orders: ${d.totalOrders.toLocaleString()}
+
+Kategori: ${d.categories.map((c) => `${c.name}(Sales:${fmtK(c.s)},Profit:${fmtK(c.p)},Margin:${c.s > 0 ? ((c.p / c.s) * 100).toFixed(1) : 0}%)`).join(", ")}
+SubKategori: ${d.subcats.map((c) => `${c.name}(${fmtK(c.s)},${fmtK(c.p)})`).join(", ")}
+Territory: ${d.territories.map((t) => `${t.name}(${fmtK(t.p)})`).join(", ")}
+Segment: ${d.segments.map((s) => `${s.name}(Sales:${fmtK(s.s)},Profit:${fmtK(s.p)})`).join(", ")}
+Anomali(${globalDetectedAnomalies.length}): ${globalDetectedAnomalies.map((a) => `[${a.type}]${a.title}`).join("; ")}`;
+      }
+
+      function renderMarkdown(text) {
+        let html = text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+          .replace(/^### (.+)$/gm, "<h3>$1</h3>")
+          .replace(/^## (.+)$/gm, "<h3>$1</h3>")
+          .replace(/^\d+\.\s(.+)$/gm, "<h3>$1</h3>");
+        html = html.replace(/(?:^|\n)((?:[-•]\s.+(?:\n|$))+)/g, (m) => {
+          const items = m
+            .trim()
+            .split("\n")
+            .map((l) => "<li>" + l.replace(/^[-•]\s/, "") + "</li>")
+            .join("");
+          return "<ul>" + items + "</ul>";
+        });
+        html = html
+          .split(/\n{2,}/)
+          .map((p) => {
+            if (/^<h3>|^<ul>/.test(p.trim())) return p;
+            return "<p>" + p.replace(/\n/g, "<br>") + "</p>";
+          })
+          .join("");
+        return html;
+      }
+
+      async function callOpenAI(prompt, el, markdown = false) {
+        el.textContent = "";
+        el.classList.add("typing");
+        try {
+          const res = await fetch(GROQ_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + apiKey,
+            },
+            body: JSON.stringify({
+              model: GROQ_MODEL,
+              messages: [{ role: "user", content: prompt }],
+              max_tokens: 1200,
+            }),
+          });
+          const data = await res.json();
+          if (data.error) {
+            el.classList.remove("typing");
+            el.textContent = "❌ Error: " + data.error.message;
+            return;
+          }
+          const text = data.choices?.[0]?.message?.content || "";
+          el.classList.remove("typing");
+          if (markdown) {
+            el.innerHTML = renderMarkdown(text);
+          } else {
+            let i = 0;
+            const iv = setInterval(() => {
+              el.textContent = text.slice(0, (i += 4));
+              if (i >= text.length) clearInterval(iv);
+            }, 10);
+          }
+        } catch (err) {
+          el.classList.remove("typing");
+          el.textContent = "❌ Gagal: " + err.message;
+        }
+      }
+
+      async function generateHeadline() {
+        const el = document.getElementById("aiHeadlineText");
+        await callOpenAI(
+          `Kamu analis bisnis senior. Buat SATU kalimat judul naratif (maks 15 kata) yang mengandung fakta kunci dan berdampak tinggi dalam Bahasa Indonesia. Hanya jawab dengan kalimatnya saja, tanpa tanda kutip.\n\n${buildCtx()}`,
+          el,
+        );
+      }
+
+      async function generateStory() {
+        const setupEl = document.getElementById("aiSummaryText");
+        const conflictEl = document.getElementById("aiConflictText");
+        const resolutionEl = document.getElementById("aiResolutionText");
+        setupEl.textContent = "Memuat narasi dari AI...";
+        conflictEl.textContent = "Memuat narasi dari AI...";
+        resolutionEl.textContent = "Memuat narasi dari AI...";
+
+        const prompt = `Kamu adalah analis bisnis senior yang menulis ringkasan eksekutif untuk dashboard Adventure Works Sales.\n\n${buildCtx()}\n\nTulis narasi dalam Bahasa Indonesia dengan FORMAT PERSIS seperti ini:\n\nSETUP\n[1-2 kalimat konteks situasi bisnis saat ini, sebutkan total sales, profit, margin, dan insight utama yang paling penting]\n\nCONFLICT\n[1-2 kalimat masalah atau anomali paling kritis yang ditemukan dari data anomali, jelaskan dampak dan penyebab potensial]\n\nRESOLUTION\n[1-2 kalimat rekomendasi konkret yang bisa dilakukan, termasuk tindakan langsung dan prioritas]\n\nDi akhir, sebutkan 1-2 insight spesifik yang dapat diambil dari data dan tindakan apa yang harus dilakukan untuk memperbaiki kinerja bisnis.\n\nGunakan angka spesifik dari data. Maksimal 6 kalimat total. Langsung ke poin, tanpa bullet atau markdown.`;
+
+        try {
+          const res = await fetch(GROQ_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + apiKey,
+            },
+            body: JSON.stringify({
+              model: GROQ_MODEL,
+              messages: [{ role: "user", content: prompt }],
+              max_tokens: 600,
+            }),
+          });
+          const data = await res.json();
+          if (data.error) {
+            const m = "❌ Error: " + data.error.message;
+            setupEl.textContent = m;
+            conflictEl.textContent = m;
+            resolutionEl.textContent = m;
+            return;
+          }
+          const text = data.choices?.[0]?.message?.content || "";
+
+          const setupMatch = text.match(
+            /SETUP[\s\S]*?\n([\s\S]*?)(?=CONFLICT|RESOLUTION|$)/i,
+          );
+          const conflictMatch = text.match(
+            /CONFLICT[\s\S]*?\n([\s\S]*?)(?=RESOLUTION|SETUP|$)/i,
+          );
+          const resolveMatch = text.match(
+            /RESOLUTION[\s\S]*?\n([\s\S]*?)(?=SETUP|CONFLICT|$)/i,
+          );
+
+          const setupTxt = setupMatch ? setupMatch[1].trim() : text.trim();
+          const conflictTxt = conflictMatch ? conflictMatch[1].trim() : "";
+          const resolveTxt = resolveMatch ? resolveMatch[1].trim() : "";
+
+          setupEl.style.color = "var(--text)";
+          conflictEl.style.color = "var(--text)";
+          resolutionEl.style.color = "var(--text)";
+          setupEl.textContent = setupTxt;
+          conflictEl.textContent = conflictTxt || "—";
+          resolutionEl.textContent = resolveTxt || "—";
+        } catch (err) {
+          const m = "❌ Gagal: " + err.message;
+          setupEl.textContent = m;
+          conflictEl.textContent = m;
+          resolutionEl.textContent = m;
+        }
+      }
+
+      async function narrateAnomalies() {
+        const btn = document.getElementById("narrateBtn");
+        btn.disabled = true;
+        btn.textContent = "⏳ Memuat...";
+        await callOpenAI(
+          `Kamu analis bisnis senior. Berdasarkan daftar anomali berikut, buat alert singkat dan actionable dalam Bahasa Indonesia. Format: setiap anomali jadi satu bullet point "- [SEVERITY] Judul singkat: deskripsi singkat — rekomendasi tindakan singkat." Maksimal 1 baris per bullet. Gunakan bullet "-" di awal baris.\n\n${buildCtx()}`,
+          document.getElementById("anomalyNarrative"),
+          true,
+        );
+        btn.disabled = false;
+        btn.textContent = "🔄 Generate Ulang";
+      }
+
+      async function askQuick(q) {
+        const el = document.getElementById("aiNarrative");
+        el.style.color = "var(--text)";
+        await callOpenAI(
+          `Kamu analis bisnis senior Adventure Works. Berdasarkan data berikut, jawab pertanyaan dengan menyusun TEPAT 3 insight bernomor dalam Bahasa Indonesia. Untuk setiap insight gunakan format markdown:\n### [Judul Insight Singkat]\n**Detail:** [1-2 kalimat penjelasan berbasis data]\n**Rekomendasi Konkret:**\n- [rekomendasi 1]\n- [rekomendasi 2]\n\nTutup dengan satu paragraf kesimpulan singkat. Pertanyaan fokus: ${q}\n\nData:\n${buildCtx()}`,
+          el,
+          true,
+        );
+      }
+
+      async function askCustom() {
+        const q = document.getElementById("customQ").value.trim();
+        if (!q) return;
+        const btn = document.getElementById("askBtn");
+        btn.disabled = true;
+        await askQuick(q);
+        btn.disabled = false;
+        document.getElementById("customQ").value = "";
+      }
+
+      // ═══════════════════════════════════════
+      //  INIT
+      // ═══════════════════════════════════════
+      window.addEventListener("DOMContentLoaded", () => {
+        const d = getFiltered();
+        updateKPIs(d);
+        drawAll(d);
+        runAnomalyDetection(d);
+        generateHeadline();
+        generateStory();
+        askQuick(
+          "Berikan 3 insight paling penting dan rekomendasi konkret berdasarkan data sales ini",
+        );
+
+        window.addEventListener("resize", () => {
+          drawAll(getFiltered());
+        });
+      });
+    </script>
+  </body>
+</html>
