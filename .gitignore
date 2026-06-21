@@ -1,0 +1,2 @@
+# File konfigurasi API key - tidak perlu di-push (API key kini pakai localStorage)
+config.js
