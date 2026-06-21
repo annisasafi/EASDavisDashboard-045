@@ -34,3 +34,7 @@ Project ini dibuat sebagai bagian dari pembelajaran data visualization dan imple
 
 Dibuat oleh: SITI ANNISA SAFITRI - 23082010045
 Course: DAVIS B – Data Visualization
+
+Tautan lengkap:
+https://drive.google.com/drive/folders/1jUZyXWa0K-Q6B6urz6g8gXIb8-IzveVZ?usp=sharing
+
